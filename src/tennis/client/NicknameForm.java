@@ -25,6 +25,7 @@ public class NicknameForm extends JFrame
     private SenderReceiverUDP handler;
     private String serverHost;
     private ExecutorService service = Executors.newFixedThreadPool(1);
+    private String nickName;
 
     public NicknameForm( String serverHost )
     {
@@ -76,6 +77,47 @@ public class NicknameForm extends JFrame
         setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
+
+        service.execute(this::listenServer);
+    }
+
+    private void listenServer()
+    {
+        try
+        {
+            String message;
+            do
+            {
+                message = handler.receive();
+
+                System.out.println("Received message: " + message);
+
+                if (message.equals(invalidNick))
+                {
+                    JOptionPane.showMessageDialog(null, "This nickname is already in use", "Invalid Nickname", JOptionPane.ERROR_MESSAGE);
+                    SwingUtilities.invokeLater(() -> enterField.setText(""));
+                    handler.setDestinationAddress(InetAddress.getByName(serverHost));
+                    handler.setDestinationPort(UDP_PORT_NUMBER);
+                }
+                else
+                {
+                    if (nickName != null)
+                    {
+                        SwingUtilities.invokeLater(this::dispose);
+                        TennisMenu app = new TennisMenu(handler, nickName);
+                        break;
+                    }
+                }
+            } while ( message.equals(invalidNick) );
+        }
+                    /*catch (SocketException se)
+                    {
+                        JOptionPane.showMessageDialog(NicknameForm.this, "Could not connect to server. Please retry", "Error", JOptionPane.ERROR_MESSAGE);
+                    }*/
+        catch (IOException e1)
+        {
+            JOptionPane.showMessageDialog(null, e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private class EnterNickNameListener implements ActionListener
@@ -83,43 +125,17 @@ public class NicknameForm extends JFrame
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            String nickName = enterField.getText();
+            nickName = enterField.getText();
+
             if (!nickName.isEmpty())
             {
-                service.execute(() -> {
-                    try
-                    {
-                        handler.send(connect + "|" + nickName);
-                    }
-                    catch (IOException e1)
-                    {
-                        JOptionPane.showMessageDialog(null, e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-
-                    String message = null;
-
-                    try
-                    {
-                        message = handler.receive();
-
-                        if (message.equals(invalidNick))
-                        {
-                            JOptionPane.showMessageDialog(null, "This nickname is already in use", "Invalid Nickname", JOptionPane.ERROR_MESSAGE);
-                            SwingUtilities.invokeLater(() -> enterField.setText(""));
-                        }
-                        else
-                        {
-                            TennisClient app = new TennisClient(handler);
-                            app.runClient();
-                            SwingUtilities.invokeLater(NicknameForm.this::dispose);
-                        }
-                    }
-                    catch (IOException e1)
-                    {
-                        JOptionPane.showMessageDialog(null, e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                });
+                //service.execute(() -> {
+                    handler.send(connect + "|" + nickName);
+                System.out.println("message sent: " + connect + "|" + nickName);
+               // });
             }
+            else
+                JOptionPane.showMessageDialog(null, "Nickname should not be empty", "Invalid Nickname", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

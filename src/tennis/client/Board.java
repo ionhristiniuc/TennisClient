@@ -24,6 +24,7 @@ public class Board extends JPanel
         this.ball = ball;
 
         setSize(boardWidth, boardHeight);
+        setPreferredSize( new Dimension(boardWidth, boardHeight));
     }
 
     public Palette getFirstPalette()

@@ -5,6 +5,7 @@ public interface TennisAppConstants
     int PORT_NUMBER = 11223;
     int UDP_PORT_NUMBER = 11224;
     String separator = "|";
+    String separator2 = ":";
     String notification = "NOTIF";
     String connect = "CONNECT";
     String disconnect = "DISCONNECT";
@@ -13,11 +14,27 @@ public interface TennisAppConstants
     String movePaletteLeft = "MOVE_P_LEFT";
     String movePaletteRight = "MOVE_P_RIGHT";
     String ballMove = "BALL";
+    String playersList = "PLAYERS_LIST";
+    String askPlay = "ASK_PLAY";
+    String respPlay = "RESP_PLAY";
+    String occupied = "OCCUPIED";
+    String createdBoard = "CREATED_BOARD";
+    String gameStopped = "GAME_STOPPED";
+    String error = "ERROR";
+    String startGame = "START_GAME";
+    String startGameSec = "START_GAME_SEC";
+    String yes = "YES";
+    String no = "NO";
+    int FREE_ST = 0;
+    int PLAYING_ST = 1;
     int boardWidth = 550;
     int boardHeight = 600;
     int paletteWidth = 70;
     int paletteHeight = 10;
     int ballDiameter = 10;
-    int moveSpeed = 7;
+    int moveSpeed = 15;
     int ballSpeed = 1;
+	int[] hitPlaces = { 5, 15, 25, 35, 45, 55, 65, 75, 85, 95, 100 };
+    int[] stepX = { -3, -2, -2, -1, -1, 0, 1, 1, 2, 2, 3 };
+    int maxPacketLength = 300;
 }

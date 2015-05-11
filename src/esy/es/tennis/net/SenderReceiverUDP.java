@@ -1,17 +1,14 @@
 package esy.es.tennis.net;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.net.*;
-
-import static esy.es.tennis.shared.TennisAppConstants.UDP_PORT_NUMBER;
 
 public class SenderReceiverUDP implements Sender, Receiver
 {
     private DatagramSocket socket;
     private InetAddress destinationAddress;
     private int destinationPort;
-    private int maxLength = 100;
+    private int maxLength = 500;
 
     public SenderReceiverUDP(InetAddress destinationAddress, int destinationPort) throws SocketException
     {
@@ -30,12 +27,42 @@ public class SenderReceiverUDP implements Sender, Receiver
         return new String(receivePacket.getData(), 0, receivePacket.getLength());
     }
 
+    public String receive( int millis ) throws SocketException
+    {
+        socket.setSoTimeout(millis);
+        try
+        {
+            return receive();
+        }
+        catch (SocketException se)
+        {
+            throw se;
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            socket.setSoTimeout(0);
+        }
+
+        return null;
+    }
+
     @Override
-    public void send(String message) throws IOException
+    public void send(String message)
     {
         byte[] data = message.getBytes();
         DatagramPacket packet = new DatagramPacket(data, 0, data.length, destinationAddress, destinationPort);
-        socket.send(packet);
+        try
+        {
+            socket.send(packet);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public InetAddress getDestinationAddress()
